@@ -46,7 +46,7 @@ module Wheatley
                         :author => pr[:user][:login],
                         :title => pr[:title],
                         :avatar => pr[:user][:avatar_url],
-                        :created_at => pr[:created_at],
+                        :merged_at => pr[:merged_at],
                         :hasTests? => hasTest,
                         :isExceptedFromTesting => hasException,
                         :hasQualitySeal? => hasQuality
@@ -179,7 +179,7 @@ end
 
 def get_picture_last_quality_pr(prs)
   get_quality_prs(prs)
-  .sort_by { |pr| pr[:created_at] }
+  .sort_by { |pr| pr[:merged_at] }
   .last[:avatar]
 end
 
