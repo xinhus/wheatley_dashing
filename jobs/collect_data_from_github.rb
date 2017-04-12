@@ -3,7 +3,7 @@ require "httparty"
 
 module Wheatley
   @access_token = ENV['GITHUB_ACCESS_TOKEN']
-  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf']
+  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego-ios', 'ebanx/ego-android']
 
   class << self
     attr_accessor :access_token, :repos
