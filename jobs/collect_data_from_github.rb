@@ -3,7 +3,7 @@ require "httparty"
 
 module Wheatley
   @access_token = ENV['GITHUB_ACCESS_TOKEN']
-  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf']
+  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego']
 
   class << self
     attr_accessor :access_token, :repos
@@ -113,6 +113,7 @@ module Wheatley
       labels.each do |label|
         return true if label[:name] == "exception"
         return true if label[:name] == "LGTM (no tests needed)"
+        return true if label[:name] == "no tests needed"
       end
 
       false
@@ -125,6 +126,7 @@ module Wheatley
       labels.each do |label|
         return true if label[:name] == "Quality"
         return true if label[:name] == "quality-improvement"
+        return true if label[:name] == "quality improvement"
       end
 
       false
