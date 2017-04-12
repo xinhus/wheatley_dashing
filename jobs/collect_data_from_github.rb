@@ -14,7 +14,6 @@ module Wheatley
 
     client = Wheatley::Client.new access_token
 
-
     result = []
 
     date = Date.new(2017, 4, 10);
@@ -46,6 +45,8 @@ module Wheatley
                         :url => pr[:html_url],
                         :author => pr[:user][:login],
                         :title => pr[:title],
+                        :avatar => pr[:user][:avatar_url],
+                        :created_at => pr[:created_at],
                         :hasTests? => hasTest,
                         :isExceptedFromTesting => hasException,
                         :hasQualitySeal? => hasQuality
@@ -174,12 +175,20 @@ def calculate_tests_percentage(prs)
   ((test_prs_count.to_f / eligible_pr_count.to_f) * 100)
 end
 
+def get_picture_last_quality_pr(prs)
+  get_quality_prs(prs)
+  .sort_by { |pr| pr[:created_at] }
+  .last[:avatar]
+end
+
 SCHEDULER.every '10m', :first_in => 0 do |job|
 
   result = Wheatley.run
+
   send_event('total_prs',  current: result.length)
   send_event('top_ten_quality', items: calculate_top_ten_quality_devs(result))
   send_event('quality_percentage', value: calculate_quality_percentage(result))
   send_event('test_percentage', value: calculate_tests_percentage(result))
+  send_event('last_quality_pr_photo', image: get_picture_last_quality_pr(result))
 
 end

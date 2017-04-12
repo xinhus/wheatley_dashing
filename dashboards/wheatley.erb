@@ -4,7 +4,7 @@
     <li data-row="1" data-col="1" data-sizex="3" data-sizey="1">
       <div data-id="welcome" data-view="Text" data-title="Bienvenido! Bem vindo! Welcome!" data-text="Welcome to Wheatley - EBANX DEV Quality dashboard" data-moreinfo="Name subject to change"></div>
     </li>
-    <li data-row="1" data-col="1" data-sizex="1" data-sizey="2">
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
       <div data-id="top_ten_quality" data-view="List" data-unordered="false" data-title="Top ten devs - QUALITY" data-moreinfo="# of quality PRs! \o/"></div>
     </li>
 
@@ -16,6 +16,10 @@
     </li>
     <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
       <div data-id="test_percentage" data-view="Meter" data-title="Tests meter" data-height="200" data-width="200" data-min="0" data-max="100" data-suffix="%"></div>
+    </li>
+
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+      <div data-id="last_quality_pr_photo" data-view="Image" data-title="Last person who commited quality" data-height="200" data-width="200" data-min="1" data-max="100" data-suffix="%"></div>
     </li>
   </ul>
   <center><div style="font-size: 12px">Try this: curl -d '{ "auth_token": "YOUR_AUTH_TOKEN", "text": "Hey, Look what I can do!" }' \http://<%=request.host%>:<%=request.port%>/widgets/welcome</div></center>
