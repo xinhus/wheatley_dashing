@@ -165,14 +165,14 @@ def calculate_quality_percentage(prs)
   total_pr_count =    prs.length
   quality_prs_count = get_quality_prs(prs).length
 
-  ((quality_prs_count.to_f / total_pr_count.to_f) * 100)
+  ((quality_prs_count.to_f / total_pr_count.to_f) * 100).round
 end
 
 def calculate_tests_percentage(prs)
   eligible_pr_count = get_test_eligible_prs(prs).length
   test_prs_count = get_test_prs(prs).length
 
-  ((test_prs_count.to_f / eligible_pr_count.to_f) * 100)
+  ((test_prs_count.to_f / eligible_pr_count.to_f) * 100).round
 end
 
 def get_picture_last_quality_pr(prs)
