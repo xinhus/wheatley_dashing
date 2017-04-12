@@ -72,13 +72,13 @@ module Wheatley
       page = 1
 
       while results.nil? or prs.count != 0
-        prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'created')
+        prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'updated')
 
         prs.each do |pr|
           is_merged = pr.merged_at
           if (is_merged != nil)
-            results << pr if pr[:created_at].to_date >= date and is_merged
-            return results if pr[:created_at].to_date < date
+            results << pr if pr[:updated_at].to_date >= date and is_merged
+            return results if pr[:updated_at].to_date < date
           end
         end
 
