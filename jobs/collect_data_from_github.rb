@@ -22,8 +22,8 @@ module Wheatley
     repos.each do |repo|
 
       puts "Repo " + repo
-      
-      base = 'develop' if development_repositories.include? then 'develop' else 'master' end
+
+      base = if @development_repositories.include? repo then 'develop' else 'master' end
 
       prs = client.get_prs_per_day(date: date, repo: repo, base: base)
 
@@ -32,14 +32,14 @@ module Wheatley
         hasException = client.pr_is_exception? pr
         hasQuality = client.pr_is_quality? pr
 
-        print "##\t" + pr[:head][:repo][:name] +
+        print "##" + pr[:head][:repo][:name] +
                   "\t" + pr[:html_url] +
                   "\t" + pr[:user][:login] +
                   "\t" + pr[:title] +
-                  "\t#{hasTest}" +
-                  "\t#{hasException}" +
-                  "\t#{hasQuality}" +
-                  "\n"
+                  "\n has test: #{hasTest}" +
+                  "\n has exeception: #{hasException}" +
+                  "\n has quality #{hasQuality}" +
+                  "\n##\n"
 
         result.push({
                         :repo =>  pr[:head][:repo][:name],
