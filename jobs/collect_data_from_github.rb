@@ -3,7 +3,9 @@ require "httparty"
 
 module Wheatley
   @access_token = ENV['GITHUB_ACCESS_TOKEN']
-  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego', 'ebanx/ego-ios', 'ebanx/ego-android', 'ebanx/ios', 'ebanx/android']
+  @mobiles_repositories = ['ebanx/ego-ios', 'ebanx/ego-android', 'ebanx/ios', 'ebanx/android']
+  @development_repositories = @mobiles_repositories + ['ebanx/woocommerce-gateway-ebanx']
+  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego'] + @mobiles_repositories
 
   class << self
     attr_accessor :access_token, :repos
@@ -21,8 +23,7 @@ module Wheatley
 
       puts "Repo " + repo
 
-      base = 'master'
-      base = 'develop' if repo == 'ebanx/woocommerce-gateway-ebanx'
+      base = if @development_repositories.include? repo then 'develop' else 'master' end
 
       prs = client.get_prs_per_day(date: date, repo: repo, base: base)
 
