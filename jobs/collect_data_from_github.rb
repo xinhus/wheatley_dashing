@@ -32,14 +32,14 @@ module Wheatley
         hasException = client.pr_is_exception? pr
         hasQuality = client.pr_is_quality? pr
 
-        print "##" + pr[:head][:repo][:name] +
+        print "##\t" + pr[:head][:repo][:name] +
                   "\t" + pr[:html_url] +
                   "\t" + pr[:user][:login] +
                   "\t" + pr[:title] +
-                  "\n has test: #{hasTest}" +
-                  "\n has exeception: #{hasException}" +
-                  "\n has quality #{hasQuality}" +
-                  "\n##\n"
+                  "\t#{hasTest}" +
+                  "\t#{hasException}" +
+                  "\t#{hasQuality}" +
+                  "\n"
 
         result.push({
                         :repo =>  pr[:head][:repo][:name],
