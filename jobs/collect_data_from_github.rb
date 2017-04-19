@@ -3,7 +3,9 @@ require "httparty"
 
 module Wheatley
   @access_token = ENV['GITHUB_ACCESS_TOKEN']
-  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf']
+  @mobiles_repositories = ['ebanx/ego-ios', 'ebanx/ego-android', 'ebanx/ios', 'ebanx/android']
+  @development_repositories = @mobiles_repositories + ['ebanx/woocommerce-gateway-ebanx']
+  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego'] + @mobiles_repositories
 
   class << self
     attr_accessor :access_token, :repos
@@ -21,8 +23,7 @@ module Wheatley
 
       puts "Repo " + repo
 
-      base = 'master'
-      base = 'develop' if repo == 'ebanx/woocommerce-gateway-ebanx'
+      base = if @development_repositories.include? repo then 'develop' else 'master' end
 
       prs = client.get_prs_per_day(date: date, repo: repo, base: base)
 
@@ -46,7 +47,7 @@ module Wheatley
                         :author => pr[:user][:login],
                         :title => pr[:title],
                         :avatar => pr[:user][:avatar_url],
-                        :created_at => pr[:created_at],
+                        :merged_at => pr[:merged_at],
                         :hasTests? => hasTest,
                         :isExceptedFromTesting => hasException,
                         :hasQualitySeal? => hasQuality
@@ -113,6 +114,7 @@ module Wheatley
       labels.each do |label|
         return true if label[:name] == "exception"
         return true if label[:name] == "LGTM (no tests needed)"
+        return true if label[:name] == "no tests needed"
       end
 
       false
@@ -125,6 +127,7 @@ module Wheatley
       labels.each do |label|
         return true if label[:name] == "Quality"
         return true if label[:name] == "quality-improvement"
+        return true if label[:name] == "quality improvement"
       end
 
       false
@@ -193,7 +196,7 @@ end
 
 def get_picture_last_quality_pr(prs)
   get_quality_prs(prs)
-  .sort_by { |pr| pr[:created_at] }
+  .sort_by { |pr| pr[:merged_at] }
   .last[:avatar]
 end
 
