@@ -141,6 +141,14 @@ module Wheatley
   end
 end
 
+def get_team_by_author(author)
+  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx'].include? author
+    return 'Payment Processing'
+  end
+
+  return 'Unknown team'
+end
+
 def get_quality_prs (prs)
   prs.select {|pr| pr[:hasQualitySeal?]}
 end
@@ -153,12 +161,20 @@ def get_test_eligible_prs (prs)
   prs.select {|pr| !pr[:isExceptedFromTesting]}
 end
 
-def calculate_top_ten_quality_devs (prs)
+def calculate_top_quality_devs (prs)
     get_quality_prs(prs)
         .group_by {|pr| pr[:author]}
         .sort_by  {|author_prs| - author_prs[1].length }
-        .take(10)
+        .take(5)
         .map {|author_prs| {label: author_prs[0], value: author_prs[1].length}}
+end
+
+def calculate_top_quality_teams (prs)
+  get_quality_prs(prs)
+      .group_by {|pr| get_team_by_author(pr[:author])}
+      .sort_by  {|author_prs| - author_prs[1].length }
+      .take(5)
+      .map {|author_prs| {label: author_prs[0], value: author_prs[1].length}}
 end
 
 def calculate_quality_percentage(prs)
@@ -186,7 +202,8 @@ SCHEDULER.every '10m', :first_in => 0 do |job|
   result = Wheatley.run
 
   send_event('total_prs',  current: result.length)
-  send_event('top_ten_quality', items: calculate_top_ten_quality_devs(result))
+  send_event('top_quality_devs', items: calculate_top_quality_devs(result))
+  send_event('top_quality_teams', items: calculate_top_quality_teams(result))
   send_event('quality_percentage', value: calculate_quality_percentage(result))
   send_event('test_percentage', value: calculate_tests_percentage(result))
   send_event('last_quality_pr_photo', image: get_picture_last_quality_pr(result))
