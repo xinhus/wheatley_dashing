@@ -148,7 +148,9 @@ def get_team_by_author(author)
   if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx'].include? author
     return 'Payment Processing'
   end
-
+  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf'].include? author
+    return 'Finance'
+  end
   return 'Unknown team'
 end
 
