@@ -23,38 +23,40 @@ module Wheatley
 
       puts "Repo " + repo
 
-      base = if @development_repositories.include? repo then 'develop' else 'master' end
+      bases = if @development_repositories.include? repo then ['develop'] else ['master'] end
+      bases = ['staging-v2', 'master'] if repo == 'ebanx/everest'
 
-      prs = client.get_prs_per_day(date: date, repo: repo, base: base)
+      bases.each do |base|
+        prs = client.get_prs_per_day(date: date, repo: repo, base: base)
 
-      prs.each do |pr|
-        hasTest = client.pr_has_test2? pr
-        hasException = client.pr_is_exception? pr
-        hasQuality = client.pr_is_quality? pr
+        prs.each do |pr|
+          hasTest = client.pr_has_test2? pr
+          hasException = client.pr_is_exception? pr
+          hasQuality = client.pr_is_quality? pr
 
-        print "##\t" + pr[:head][:repo][:name] +
-                  "\t" + pr[:html_url] +
-                  "\t" + pr[:user][:login] +
-                  "\t" + pr[:title] +
-                  "\t#{hasTest}" +
-                  "\t#{hasException}" +
-                  "\t#{hasQuality}" +
-                  "\n"
+          print "##\t" + pr[:head][:repo][:name] +
+                    "\t" + pr[:html_url] +
+                    "\t" + pr[:user][:login] +
+                    "\t" + pr[:title] +
+                    "\t#{hasTest}" +
+                    "\t#{hasException}" +
+                    "\t#{hasQuality}" +
+                    "\n"
 
-        result.push({
-                        :repo =>  pr[:head][:repo][:name],
-                        :url => pr[:html_url],
-                        :author => pr[:user][:login],
-                        :title => pr[:title],
-                        :avatar => pr[:user][:avatar_url],
-                        :merged_at => pr[:merged_at],
-                        :hasTests? => hasTest,
-                        :isExceptedFromTesting => hasException,
-                        :hasQualitySeal? => hasQuality
-                    })
+          result.push({
+                          :repo =>  pr[:head][:repo][:name],
+                          :url => pr[:html_url],
+                          :author => pr[:user][:login],
+                          :title => pr[:title],
+                          :avatar => pr[:user][:avatar_url],
+                          :merged_at => pr[:merged_at],
+                          :hasTests? => hasTest,
+                          :isExceptedFromTesting => hasException,
+                          :hasQualitySeal? => hasQuality
+                      })
+        end
+
       end
-
-
     end
 
     return result
@@ -73,7 +75,7 @@ module Wheatley
       page = 1
 
       while results.nil? or prs.count != 0
-        prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'updated')
+        prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'merged')
 
         prs.each do |pr|
           is_merged = pr.merged_at
@@ -99,7 +101,7 @@ module Wheatley
       pr_diff = response.body
 
       begin
-        if /^\+.*Test/.match pr_diff
+        if /^\+.*Test/.match pr_diff || pr_has_end_to_end?(pr)
           true
         else
           false
@@ -115,6 +117,16 @@ module Wheatley
         return true if label[:name] == "exception"
         return true if label[:name] == "LGTM (no tests needed)"
         return true if label[:name] == "no tests needed"
+      end
+
+      false
+    end
+
+    def pr_has_end_to_end? pr
+      labels = pr_labels(pr)
+
+      labels.each do |label|
+        return true if label[:name] == "LGTM (end to end tested)"
       end
 
       false
@@ -147,6 +159,22 @@ end
 def get_team_by_author(author)
   if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx'].include? author
     return 'Payment Processing'
+  end
+
+  if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan'].include? author
+    return 'Merchant Products/Onboarding'
+  end
+
+  if ['brunoberte', 'fabioaalves', 'fariajp' , 'geicyane', 'LuisMaleski', 'rihjsantos', 'thiagocordeiro', 'Valforte', 'vinivf', 'leandrofinger'].include? author
+    return 'Finance'
+  end
+
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego'].include? author
+    return 'End User - Web'
+  end
+
+  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp'].include? author
+    return 'End User - Mobile'
   end
 
   return 'Unknown team'
