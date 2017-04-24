@@ -162,15 +162,15 @@ def get_team_by_author(author)
   end
 
   if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan'].include? author
-    return 'Merchant Products/Onboarding'
+    return 'Merchant Product / SMB'
   end
 
   if ['brunoberte', 'fabioaalves', 'fariajp' , 'geicyane', 'LuisMaleski', 'rihjsantos', 'thiagocordeiro', 'Valforte', 'vinivf', 'leandrofinger'].include? author
     return 'Finance'
   end
 
-  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego'].include? author
-    return 'End User - Web'
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182'].include? author
+    return 'End User - Web / MKT'
   end
 
   if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp'].include? author
