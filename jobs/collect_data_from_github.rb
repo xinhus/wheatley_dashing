@@ -208,6 +208,16 @@ def calculate_top_quality_teams (prs)
       .map {|author_prs| {label: author_prs[0], value: author_prs[1].length}}
 end
 
+def calculate_top_test_teams (prs)
+  prs
+      .group_by {|pr| get_team_by_author(pr[:author])}
+      .map {|prs_by_repo| {repo: prs_by_repo[0], tests_percentage: calculate_tests_percentage(prs_by_repo[1])}}
+      .sort_by { |tests_by_repo| - tests_by_repo[:tests_percentage] }
+      .take(5)
+      .map {|tests_by_repo| {:label => tests_by_repo[:repo], :value => tests_by_repo[:tests_percentage]}}
+
+end
+
 def calculate_quality_percentage(prs)
   total_pr_count =    prs.length
   quality_prs_count = get_quality_prs(prs).length
@@ -228,6 +238,16 @@ def get_picture_last_quality_pr(prs)
   .last[:avatar]
 end
 
+def get_lowest_five_test_percentage_per_repository(prs)
+  prs
+      .group_by {|pr| pr[:repo]}
+      .map {|prs_by_repo| {repo: prs_by_repo[0], tests_percentage: calculate_tests_percentage(prs_by_repo[1])}}
+      .sort_by { |tests_by_repo| tests_by_repo[:tests_percentage] }
+      .take(5)
+      .map {|tests_by_repo| {:label => tests_by_repo[:repo], :value => tests_by_repo[:tests_percentage]}}
+
+end
+
 SCHEDULER.every '10m', :first_in => 0 do |job|
 
   result = Wheatley.run
@@ -235,8 +255,10 @@ SCHEDULER.every '10m', :first_in => 0 do |job|
   send_event('total_prs',  current: result.length)
   send_event('top_quality_devs', items: calculate_top_quality_devs(result))
   send_event('top_quality_teams', items: calculate_top_quality_teams(result))
+  send_event('top_tests_teams', items: calculate_top_test_teams(result))
   send_event('quality_percentage', value: calculate_quality_percentage(result))
   send_event('test_percentage', value: calculate_tests_percentage(result))
   send_event('last_quality_pr_photo', image: get_picture_last_quality_pr(result))
+  send_event('test_percentage_per_repository', items: get_lowest_five_test_percentage_per_repository(result))
 
 end
