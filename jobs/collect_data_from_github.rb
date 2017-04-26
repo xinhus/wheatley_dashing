@@ -101,7 +101,7 @@ module Wheatley
       pr_diff = response.body
 
       begin
-        if /^\+.*Test/.match pr_diff || pr_has_end_to_end?(pr)
+        if /^\+.*Test/.match pr_diff || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
           true
         else
           false
