@@ -5,7 +5,7 @@ module Wheatley
   @access_token = ENV['GITHUB_ACCESS_TOKEN']
   @mobiles_repositories = ['ebanx/ego-ios', 'ebanx/ego-android', 'ebanx/ios', 'ebanx/android']
   @development_repositories = @mobiles_repositories + ['ebanx/woocommerce-gateway-ebanx']
-  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego', 'ebanx/hi-jump-kick'] + @mobiles_repositories
+  @repos = ['ebanx/benjamin', 'ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego', 'ebanx/hi-jump-kick'] + @mobiles_repositories
 
   class << self
     attr_accessor :access_token, :repos
