@@ -34,7 +34,7 @@ module Wheatley
           hasException = client.pr_is_exception? pr
           hasQuality = client.pr_is_quality? pr
 
-          print "##\t" + pr[:head][:repo][:name] +
+          print "##!\t" + pr[:head][:repo][:name] +
                     "\t" + pr[:html_url] +
                     "\t" + pr[:user][:login] +
                     "\t" + pr[:title] +
@@ -100,13 +100,10 @@ module Wheatley
 
       pr_diff = response.body
 
-      begin
-        if /^\+.*Test/.match pr_diff || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
-          true
-        else
-          false
-        end
-      rescue
+      if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
+        true
+      else
+        false
       end
     end
 
@@ -117,6 +114,7 @@ module Wheatley
         return true if label[:name] == "exception"
         return true if label[:name] == "LGTM (no tests needed)"
         return true if label[:name] == "no tests needed"
+        return true if label[:name] == "tests not needed"
       end
 
       false
