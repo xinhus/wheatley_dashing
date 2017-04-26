@@ -41,6 +41,7 @@ module Wheatley
                     "\t#{hasTest}" +
                     "\t#{hasException}" +
                     "\t#{hasQuality}" +
+                    "\t#{pr[:merged_at].to_s}" +
                     "\n"
 
           result.push({
@@ -52,7 +53,8 @@ module Wheatley
                           :merged_at => pr[:merged_at],
                           :hasTests? => hasTest,
                           :isExceptedFromTesting => hasException,
-                          :hasQualitySeal? => hasQuality
+                          :hasQualitySeal? => hasQuality,
+                          :merged_at => pr[:merged_at]
                       })
         end
 
@@ -75,12 +77,12 @@ module Wheatley
       page = 1
 
       while results.nil? or prs.count != 0
-        prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'merged')
+        prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'updated')
 
         prs.each do |pr|
           is_merged = pr.merged_at
           if (is_merged != nil)
-            results << pr if pr[:updated_at].to_date >= date and is_merged
+            results << pr if pr[:merged_at].to_date >= date and is_merged
             return results if pr[:updated_at].to_date < date
           end
         end
@@ -160,15 +162,15 @@ def get_team_by_author(author)
   end
 
   if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan'].include? author
-    return 'Merchant Product / SMB'
+    return 'MerchantProduct/ SMB'
   end
 
   if ['brunoberte', 'fabioaalves', 'fariajp' , 'geicyane', 'LuisMaleski', 'rihjsantos', 'thiagocordeiro', 'Valforte', 'vinivf', 'leandrofinger'].include? author
     return 'Finance'
   end
 
-  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182'].include? author
-    return 'End User - Web / MKT'
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan'].include? author
+    return 'EndUser-Web/ MKT'
   end
 
   if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp'].include? author
