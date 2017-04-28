@@ -157,7 +157,7 @@ module Wheatley
 end
 
 def get_team_by_author(author)
-  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx'].include? author
+  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico'].include? author
     return 'Payment Processing'
   end
 
