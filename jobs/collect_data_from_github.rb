@@ -238,6 +238,12 @@ def get_picture_last_quality_pr(prs)
   .last[:avatar]
 end
 
+def get_url_last_quality_pr(prs)
+  quality_prs = get_quality_prs(prs)
+  .sort_by { |pr| pr[:merged_at] }
+  .last[:url]
+end
+
 def get_lowest_five_test_percentage_per_repository(prs)
   prs
       .group_by {|pr| pr[:repo]}
@@ -258,7 +264,7 @@ SCHEDULER.every '10m', :first_in => 0 do |job|
   send_event('top_tests_teams', items: calculate_top_test_teams(result))
   send_event('quality_percentage', value: calculate_quality_percentage(result))
   send_event('test_percentage', value: calculate_tests_percentage(result))
-  send_event('last_quality_pr_photo', image: get_picture_last_quality_pr(result))
+  send_event('last_quality_pr_photo', image: get_picture_last_quality_pr(result), url: get_url_last_quality_pr(result))
   send_event('test_percentage_per_repository', items: get_lowest_five_test_percentage_per_repository(result))
 
 end
