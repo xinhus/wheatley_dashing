@@ -136,10 +136,10 @@ module Wheatley
 
       labels = pr_labels(pr)
 
+      quality_labels = ['quality', 'quality-improvement', 'quality improvement']
+
       labels.each do |label|
-        return true if label[:name] == "Quality"
-        return true if label[:name] == "quality-improvement"
-        return true if label[:name] == "quality improvement"
+        return true if quality_labels.include? label[:name].downcase
       end
 
       false
@@ -157,23 +157,23 @@ module Wheatley
 end
 
 def get_team_by_author(author)
-  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico'].include? author
+  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico', 'gabrielysimette'].include? author
     return 'Payment Processing'
   end
 
-  if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan'].include? author
+  if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan', 'andercampanha', 'jutretel'].include? author
     return 'MerchantProduct/ SMB'
   end
 
-  if ['brunoberte', 'fabioaalves', 'fariajp' , 'geicyane', 'LuisMaleski', 'rihjsantos', 'thiagocordeiro', 'Valforte', 'vinivf', 'leandrofinger'].include? author
+  if ['brunoberte', 'fabioaalves', 'fariajp' , 'geicyane', 'LuisMaleski', 'rihjsantos', 'thiagocordeiro', 'Valforte', 'vinivf', 'leandrofinger', 'luisguilhermemsalmeida'].include? author
     return 'Finance'
   end
 
-  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan'].include? author
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15'].include? author
     return 'EndUser-Web/ MKT'
   end
 
-  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp'].include? author
+  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp', 'fernandocruz', 'issamumobi', 'fernandoamorim'].include? author
     return 'End User - Mobile'
   end
 
