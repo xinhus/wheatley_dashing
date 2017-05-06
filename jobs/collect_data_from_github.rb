@@ -173,7 +173,7 @@ def get_team_by_author(author)
     return 'EndUser-Web/ MKT'
   end
 
-  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp'].include? author
+  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp', 'fernandocruz', 'issamumobi', 'fernandoamorim'].include? author
     return 'End User - Mobile'
   end
 
