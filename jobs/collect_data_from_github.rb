@@ -136,10 +136,10 @@ module Wheatley
 
       labels = pr_labels(pr)
 
+      quality_labels = ['quality', 'quality-improvement', 'quality improvement']
+
       labels.each do |label|
-        return true if label[:name] == "Quality"
-        return true if label[:name] == "quality-improvement"
-        return true if label[:name] == "quality improvement"
+        return true if quality_labels.include? label[:name].downcase
       end
 
       false
