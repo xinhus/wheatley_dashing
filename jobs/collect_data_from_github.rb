@@ -65,9 +65,11 @@ module Wheatley
   end
 
   class Client
+
     def initialize(access_token)
       @access_token = access_token
       @client ||= Octokit::Client.new(:access_token => access_token)
+      @diff_by_url = {}
     end
 
     def get_prs_per_day(date: Date.today-1, repo:'', base: 'master')
@@ -94,13 +96,20 @@ module Wheatley
     end
 
     def pr_has_test2? pr
-      response = HTTParty.get(pr['url'], :headers => {
-          "Authorization" => "token #{@access_token}",
-          "Accept" => "application/vnd.github.v3.diff",
-          "User-Agent" => "Wheatley"
-      })
 
-      pr_diff = response.body
+      url = pr['url']
+      if @diff_by_url[url]
+        pr_diff = @diff_by_url[url]
+      else
+        response = HTTParty.get(url, :headers => {
+            "Authorization" => "token #{@access_token}",
+            "Accept" => "application/vnd.github.v3.diff",
+            "User-Agent" => "Wheatley"
+        })
+
+        pr_diff = response.body
+        @diff_by_url[url] = pr_diff
+      end
 
       if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
         true
@@ -228,6 +237,10 @@ end
 def calculate_tests_percentage(prs)
   eligible_pr_count = get_test_eligible_prs(prs).length
   test_prs_count = get_test_prs(prs).length
+
+  if eligible_pr_count == 0
+    return 0
+  end
 
   ((test_prs_count.to_f / eligible_pr_count.to_f) * 100).round
 end
