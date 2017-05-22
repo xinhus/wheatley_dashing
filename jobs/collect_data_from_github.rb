@@ -170,12 +170,12 @@ def get_team_by_author(author)
     return 'Payment Processing'
   end
 
-  if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan', 'andercampanha', 'jutretel'].include? author
-    return 'MerchantProduct/ SMB'
+  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf', 'luisguilhermemsalmeida'].include? author
+    return 'Finance'
   end
 
-  if ['brunoberte', 'fabioaalves', 'fariajp' , 'geicyane', 'LuisMaleski', 'rihjsantos', 'thiagocordeiro', 'Valforte', 'vinivf', 'leandrofinger', 'luisguilhermemsalmeida'].include? author
-    return 'Finance'
+  if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan', 'andercampanha', 'jutretel'].include? author
+    return 'MerchantProduct/ SMB'
   end
 
   if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15'].include? author
