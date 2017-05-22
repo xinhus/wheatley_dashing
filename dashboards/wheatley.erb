@@ -1,8 +1,16 @@
 <% content_for :title do %>My super sweet dashboard<% end %>
+<div class="header-bar gridster">
+  <div data-row="1" data-col="1" data-sizex="4">
+    <div data-id="welcome" data-view="Text" data-width="85em" data-imgtitle="Fork me on GitHub" data-img="/assets/fork-me-on-github-badge-264x264.png" data-link="https://github.com/kalecser/wheatley_dashing" data-title="Bienvenido! Bem vindo! Welcome!" data-text="Welcome to Wheatley - EBANX DEV Quality dashboard" data-moreinfo=""></div>
+  </div>
+</div>
 <div class="gridster">
   <ul>
-    <li data-row="1" data-col="1" data-sizex="2" data-sizey="1">
-      <div data-id="welcome" data-view="Text" data-title="Bienvenido! Bem vindo! Welcome!" data-text="Welcome to Wheatley - EBANX DEV Quality dashboard" data-moreinfo="Name subject to change"></div>
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+      <div data-id="test_percentage_per_repository" data-view="List" data-unordered="false" data-title="Repositories needing love - TESTS" data-moreinfo="% of tests"></div>
+    </li>
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+      <div data-id="top_tests_teams" data-view="List" data-unordered="false" data-title="Top five teams - TESTS" data-moreinfo="% of tests"></div>
     </li>
     <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
       <div data-id="top_quality_teams" data-view="List" data-unordered="false" data-title="Top five teams - QUALITY" data-moreinfo="# of quality PRs! \o/"></div>

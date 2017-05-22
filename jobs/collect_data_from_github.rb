@@ -5,7 +5,7 @@ module Wheatley
   @access_token = ENV['GITHUB_ACCESS_TOKEN']
   @mobiles_repositories = ['ebanx/ego-ios', 'ebanx/ego-android', 'ebanx/ios', 'ebanx/android']
   @development_repositories = @mobiles_repositories + ['ebanx/woocommerce-gateway-ebanx']
-  @repos = ['ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego'] + @mobiles_repositories
+  @repos = ['ebanx/benjamin', 'ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/pay-risk', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego', 'ebanx/hi-jump-kick'] + @mobiles_repositories
 
   class << self
     attr_accessor :access_token, :repos
@@ -23,47 +23,53 @@ module Wheatley
 
       puts "Repo " + repo
 
-      base = if @development_repositories.include? repo then 'develop' else 'master' end
+      bases = if @development_repositories.include? repo then ['develop'] else ['master'] end
+      bases = ['staging-v2', 'master'] if repo == 'ebanx/everest'
 
-      prs = client.get_prs_per_day(date: date, repo: repo, base: base)
+      bases.each do |base|
+        prs = client.get_prs_per_day(date: date, repo: repo, base: base)
 
-      prs.each do |pr|
-        hasTest = client.pr_has_test2? pr
-        hasException = client.pr_is_exception? pr
-        hasQuality = client.pr_is_quality? pr
+        prs.each do |pr|
+          hasTest = client.pr_has_test2? pr
+          hasException = client.pr_is_exception? pr
+          hasQuality = client.pr_is_quality? pr
 
-        print "##\t" + pr[:head][:repo][:name] +
-                  "\t" + pr[:html_url] +
-                  "\t" + pr[:user][:login] +
-                  "\t" + pr[:title] +
-                  "\t#{hasTest}" +
-                  "\t#{hasException}" +
-                  "\t#{hasQuality}" +
-                  "\n"
+          print "##!\t" + pr[:head][:repo][:name] +
+                    "\t" + pr[:html_url] +
+                    "\t" + pr[:user][:login] +
+                    "\t" + pr[:title] +
+                    "\t#{hasTest}" +
+                    "\t#{hasException}" +
+                    "\t#{hasQuality}" +
+                    "\t#{pr[:merged_at].to_s}" +
+                    "\n"
 
-        result.push({
-                        :repo =>  pr[:head][:repo][:name],
-                        :url => pr[:html_url],
-                        :author => pr[:user][:login],
-                        :title => pr[:title],
-                        :avatar => pr[:user][:avatar_url],
-                        :merged_at => pr[:merged_at],
-                        :hasTests? => hasTest,
-                        :isExceptedFromTesting => hasException,
-                        :hasQualitySeal? => hasQuality
-                    })
+          result.push({
+                          :repo =>  pr[:head][:repo][:name],
+                          :url => pr[:html_url],
+                          :author => pr[:user][:login],
+                          :title => pr[:title],
+                          :avatar => pr[:user][:avatar_url],
+                          :merged_at => pr[:merged_at],
+                          :hasTests? => hasTest,
+                          :isExceptedFromTesting => hasException,
+                          :hasQualitySeal? => hasQuality,
+                          :merged_at => pr[:merged_at]
+                      })
+        end
+
       end
-
-
     end
 
     return result
   end
 
   class Client
+
     def initialize(access_token)
       @access_token = access_token
       @client ||= Octokit::Client.new(:access_token => access_token)
+      @diff_by_url = {}
     end
 
     def get_prs_per_day(date: Date.today-1, repo:'', base: 'master')
@@ -78,7 +84,7 @@ module Wheatley
         prs.each do |pr|
           is_merged = pr.merged_at
           if (is_merged != nil)
-            results << pr if pr[:updated_at].to_date >= date and is_merged
+            results << pr if pr[:merged_at].to_date >= date and is_merged
             return results if pr[:updated_at].to_date < date
           end
         end
@@ -90,21 +96,25 @@ module Wheatley
     end
 
     def pr_has_test2? pr
-      response = HTTParty.get(pr['url'], :headers => {
-          "Authorization" => "token #{@access_token}",
-          "Accept" => "application/vnd.github.v3.diff",
-          "User-Agent" => "Wheatley"
-      })
 
-      pr_diff = response.body
+      url = pr['url']
+      if @diff_by_url[url]
+        pr_diff = @diff_by_url[url]
+      else
+        response = HTTParty.get(url, :headers => {
+            "Authorization" => "token #{@access_token}",
+            "Accept" => "application/vnd.github.v3.diff",
+            "User-Agent" => "Wheatley"
+        })
 
-      begin
-        if /^\+.*Test/.match pr_diff
-          true
-        else
-          false
-        end
-      rescue
+        pr_diff = response.body
+        @diff_by_url[url] = pr_diff
+      end
+
+      if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
+        true
+      else
+        false
       end
     end
 
@@ -115,6 +125,17 @@ module Wheatley
         return true if label[:name] == "exception"
         return true if label[:name] == "LGTM (no tests needed)"
         return true if label[:name] == "no tests needed"
+        return true if label[:name] == "tests not needed"
+      end
+
+      false
+    end
+
+    def pr_has_end_to_end? pr
+      labels = pr_labels(pr)
+
+      labels.each do |label|
+        return true if label[:name] == "LGTM (end to end tested)"
       end
 
       false
@@ -124,10 +145,10 @@ module Wheatley
 
       labels = pr_labels(pr)
 
+      quality_labels = ['quality', 'quality-improvement', 'quality improvement']
+
       labels.each do |label|
-        return true if label[:name] == "Quality"
-        return true if label[:name] == "quality-improvement"
-        return true if label[:name] == "quality improvement"
+        return true if quality_labels.include? label[:name].downcase
       end
 
       false
@@ -145,12 +166,26 @@ module Wheatley
 end
 
 def get_team_by_author(author)
-  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx'].include? author
+  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico', 'gabrielysimette'].include? author
     return 'Payment Processing'
   end
-  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf'].include? author
+
+  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf', 'luisguilhermemsalmeida'].include? author
     return 'Finance'
   end
+
+  if ['miguelxpn', 'frop', 'ijda3', 'danielnass', 'cezarlz', 'cristopher-rodrigues', 'IneedRock', 'Jonatan-Korello', 'williandricken', 'gpressutto5', 'SparK-Cruz', 'guilhermepiovesan', 'andercampanha', 'jutretel'].include? author
+    return 'MerchantProduct/ SMB'
+  end
+
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15'].include? author
+    return 'EndUser-Web/ MKT'
+  end
+
+  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp', 'fernandocruz', 'issamumobi', 'fernandoamorim'].include? author
+    return 'End User - Mobile'
+  end
+
   return 'Unknown team'
 end
 
@@ -182,6 +217,16 @@ def calculate_top_quality_teams (prs)
       .map {|author_prs| {label: author_prs[0], value: author_prs[1].length}}
 end
 
+def calculate_top_test_teams (prs)
+  prs
+      .group_by {|pr| get_team_by_author(pr[:author])}
+      .map {|prs_by_repo| {repo: prs_by_repo[0], tests_percentage: calculate_tests_percentage(prs_by_repo[1])}}
+      .sort_by { |tests_by_repo| - tests_by_repo[:tests_percentage] }
+      .take(5)
+      .map {|tests_by_repo| {:label => tests_by_repo[:repo], :value => tests_by_repo[:tests_percentage]}}
+
+end
+
 def calculate_quality_percentage(prs)
   total_pr_count =    prs.length
   quality_prs_count = get_quality_prs(prs).length
@@ -193,6 +238,10 @@ def calculate_tests_percentage(prs)
   eligible_pr_count = get_test_eligible_prs(prs).length
   test_prs_count = get_test_prs(prs).length
 
+  if eligible_pr_count == 0
+    return 0
+  end
+
   ((test_prs_count.to_f / eligible_pr_count.to_f) * 100).round
 end
 
@@ -202,6 +251,22 @@ def get_picture_last_quality_pr(prs)
   .last[:avatar]
 end
 
+def get_url_last_quality_pr(prs)
+  quality_prs = get_quality_prs(prs)
+  .sort_by { |pr| pr[:merged_at] }
+  .last[:url]
+end
+
+def get_lowest_five_test_percentage_per_repository(prs)
+  prs
+      .group_by {|pr| pr[:repo]}
+      .map {|prs_by_repo| {repo: prs_by_repo[0], tests_percentage: calculate_tests_percentage(prs_by_repo[1])}}
+      .sort_by { |tests_by_repo| tests_by_repo[:tests_percentage] }
+      .take(5)
+      .map {|tests_by_repo| {:label => tests_by_repo[:repo], :value => tests_by_repo[:tests_percentage]}}
+
+end
+
 SCHEDULER.every '10m', :first_in => 0 do |job|
 
   result = Wheatley.run
@@ -209,8 +274,10 @@ SCHEDULER.every '10m', :first_in => 0 do |job|
   send_event('total_prs',  current: result.length)
   send_event('top_quality_devs', items: calculate_top_quality_devs(result))
   send_event('top_quality_teams', items: calculate_top_quality_teams(result))
+  send_event('top_tests_teams', items: calculate_top_test_teams(result))
   send_event('quality_percentage', value: calculate_quality_percentage(result))
   send_event('test_percentage', value: calculate_tests_percentage(result))
-  send_event('last_quality_pr_photo', image: get_picture_last_quality_pr(result))
+  send_event('last_quality_pr_photo', image: get_picture_last_quality_pr(result), url: get_url_last_quality_pr(result))
+  send_event('test_percentage_per_repository', items: get_lowest_five_test_percentage_per_repository(result))
 
 end

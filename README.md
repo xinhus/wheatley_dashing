@@ -1,1 +1,1 @@
-Check out http://smashing.github.io/ for more information.
+Check out https://wheatley-ebanx.herokuapp.com/wheatley for more information.
