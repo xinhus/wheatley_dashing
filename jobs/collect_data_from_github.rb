@@ -186,7 +186,7 @@ def get_team_by_author(author)
     return 'End User - Mobile'
   end
 
-  return 'Unknown team'
+  return "Unknown team - #{author}"
 end
 
 def get_quality_prs (prs)
