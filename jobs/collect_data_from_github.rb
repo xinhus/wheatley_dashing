@@ -2,7 +2,7 @@ require "octokit"
 require "httparty"
 
 module Wheatley
-  @access_token = ENV['GITHUB_ACCESS_TOKEN']
+  @access_tokens = ENV['GITHUB_ACCESS_TOKEN']
   @mobiles_repositories = ['ebanx/ego-ios', 'ebanx/ego-android', 'ebanx/ios', 'ebanx/android']
   @development_repositories = @mobiles_repositories + ['ebanx/woocommerce-gateway-ebanx']
   @repos = ['ebanx/benjamin', 'ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/pay-risk', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego', 'ebanx/hi-jump-kick'] + @mobiles_repositories
@@ -12,16 +12,20 @@ module Wheatley
   end
 
   def self.run()
-    raise "GITHUB_ACCESS_TOKEN environment variable must be set" unless @access_token
+    raise "GITHUB_ACCESS_TOKEN environment variable must be set" unless @access_tokens
 
-    client = Wheatley::Client.new access_token
+    access_tokens = @access_tokens.split(';').cycle
 
     result = []
 
     date = Date.new(2017, 6, 1);
     repos.each do |repo|
 
-      puts "Repo " + repo
+      token = access_tokens.next
+
+      puts "Repo #{repo} Access token #{token}"
+
+      client = Wheatley::Client.new token
 
       bases = if @development_repositories.include? repo then ['develop'] else ['master'] end
       bases = ['staging-v2', 'master'] if repo == 'ebanx/everest'
