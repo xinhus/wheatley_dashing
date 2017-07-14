@@ -18,7 +18,7 @@ module Wheatley
 
     result = []
 
-    date = Date.new(2017, 4, 10);
+    date = Date.new(2017, 6, 1);
     repos.each do |repo|
 
       puts "Repo " + repo
@@ -79,7 +79,6 @@ module Wheatley
       page = 1
 
       while results.nil? or prs.count != 0
-        sleep 0.2
 	prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'updated')
 
         prs.each do |pr|
@@ -109,7 +108,6 @@ module Wheatley
         })
 
         pr_diff = response.body
-	sleep 0.2
         @diff_by_url[url] = pr_diff
       end
 
