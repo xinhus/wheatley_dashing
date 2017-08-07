@@ -73,7 +73,7 @@ module Wheatley
     def initialize(access_token)
       @access_token = access_token
       @client ||= Octokit::Client.new(:access_token => access_token)
-      @diff_by_url = {}
+      @has_tests_by_url = {}
     end
 
     def get_prs_per_day(date: Date.today-1, repo:'', base: 'master')
@@ -102,8 +102,8 @@ module Wheatley
     def pr_has_test2? pr
 
       url = pr['url']
-      if @diff_by_url[url]
-        pr_diff = @diff_by_url[url]
+      if @has_tests_by_url[url] != nil
+        return @has_tests_by_url[url]
       else
         response = HTTParty.get(url, :headers => {
             "Authorization" => "token #{@access_token}",
@@ -111,13 +111,14 @@ module Wheatley
             "User-Agent" => "Wheatley"
         })
 
-        pr_diff = response.body
-        @diff_by_url[url] = pr_diff
+        pr_diff = response.body.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       end
 
       if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
+        @has_tests_by_url[url] = true
         true
       else
+        @has_tests_by_url[url] = false
         false
       end
     end
