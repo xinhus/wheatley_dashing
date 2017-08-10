@@ -170,7 +170,7 @@ def get_team_by_author(author)
     return 'Payment Processing'
   end
 
-  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf', 'luisguilhermemsalmeida'].include? author
+  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf', 'luisguilhermemsalmeida', 'jorgecandidoan'].include? author
     return 'Finance'
   end
 
@@ -178,7 +178,7 @@ def get_team_by_author(author)
     return 'MerchantProduct/ SMB'
   end
 
-  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15'].include? author
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15', 'deafjava'].include? author
     return 'EndUser-Web/ MKT'
   end
 
