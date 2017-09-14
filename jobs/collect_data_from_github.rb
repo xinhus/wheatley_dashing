@@ -35,10 +35,6 @@ module Wheatley
 
         prs.each do |pr|
 
-          if Random.rand(100) == 1
-            ObjectSpace.dump_all(output: :stdout)
-          end
-
           hasTest = client.pr_has_test2? pr
           hasException = client.pr_is_exception? pr
           hasQuality = client.pr_is_quality? pr
