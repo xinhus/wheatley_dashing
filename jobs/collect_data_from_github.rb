@@ -273,7 +273,7 @@ def get_lowest_five_test_percentage_per_repository(prs)
 
 end
 
-SCHEDULER.every '10m', :first_in => 0 do |job|
+SCHEDULER.every '30m', :first_in => 0 do |job|
 
   result = Wheatley.run
 
