@@ -2,26 +2,30 @@ require "octokit"
 require "httparty"
 
 module Wheatley
-  @access_token = ENV['GITHUB_ACCESS_TOKEN']
+  @access_tokens = ENV['GITHUB_ACCESS_TOKEN']
   @mobiles_repositories = ['ebanx/ego-ios', 'ebanx/ego-android', 'ebanx/ios', 'ebanx/android']
   @development_repositories = @mobiles_repositories + ['ebanx/woocommerce-gateway-ebanx']
-  @repos = ['ebanx/benjamin', 'ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/pay-risk', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego', 'ebanx/hi-jump-kick'] + @mobiles_repositories
+  @repos = ['ebanx/benjamin', 'ebanx/woocommerce-gateway-ebanx', 'ebanx/pay', 'ebanx/pay-risk', 'ebanx/everest', 'ebanx/account', 'ebanx/knox', 'ebanx/gandalf', 'ebanx/ego', 'ebanx/hi-jump-kick', 'ebanx/wayne', 'ebanx/volcanes', 'ebanx/andes'] + @mobiles_repositories
 
   class << self
     attr_accessor :access_token, :repos
   end
 
   def self.run()
-    raise "GITHUB_ACCESS_TOKEN environment variable must be set" unless @access_token
+    raise "GITHUB_ACCESS_TOKEN environment variable must be set" unless @access_tokens
 
-    client = Wheatley::Client.new access_token
+    access_tokens = @access_tokens.split(';').cycle
 
     result = []
 
-    date = Date.new(2017, 4, 10);
+    date = Date.new(2017, 6, 1);
     repos.each do |repo|
 
-      puts "Repo " + repo
+      token = access_tokens.next
+
+      puts "Repo #{repo} Access token #{token}"
+
+      client = Wheatley::Client.new token
 
       bases = if @development_repositories.include? repo then ['develop'] else ['master'] end
       bases = ['staging-v2', 'master'] if repo == 'ebanx/everest'
@@ -30,6 +34,7 @@ module Wheatley
         prs = client.get_prs_per_day(date: date, repo: repo, base: base)
 
         prs.each do |pr|
+
           hasTest = client.pr_has_test2? pr
           hasException = client.pr_is_exception? pr
           hasQuality = client.pr_is_quality? pr
@@ -69,7 +74,7 @@ module Wheatley
     def initialize(access_token)
       @access_token = access_token
       @client ||= Octokit::Client.new(:access_token => access_token)
-      @diff_by_url = {}
+      @has_tests_by_url = {}
     end
 
     def get_prs_per_day(date: Date.today-1, repo:'', base: 'master')
@@ -79,7 +84,7 @@ module Wheatley
       page = 1
 
       while results.nil? or prs.count != 0
-        prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'updated')
+	prs = @client.pull_requests(repo, state: 'closed', base: base, direction: 'desc', page: page, sort: 'updated')
 
         prs.each do |pr|
           is_merged = pr.merged_at
@@ -98,8 +103,8 @@ module Wheatley
     def pr_has_test2? pr
 
       url = pr['url']
-      if @diff_by_url[url]
-        pr_diff = @diff_by_url[url]
+      if @has_tests_by_url[url] != nil
+        return @has_tests_by_url[url]
       else
         response = HTTParty.get(url, :headers => {
             "Authorization" => "token #{@access_token}",
@@ -107,13 +112,14 @@ module Wheatley
             "User-Agent" => "Wheatley"
         })
 
-        pr_diff = response.body
-        @diff_by_url[url] = pr_diff
+        pr_diff = response.body.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       end
 
       if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
+        @has_tests_by_url[url] = true
         true
       else
+        @has_tests_by_url[url] = false
         false
       end
     end
@@ -166,11 +172,11 @@ module Wheatley
 end
 
 def get_team_by_author(author)
-  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico', 'gabrielysimette'].include? author
+  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico', 'gabrielysimette', 'thyagostall', 'xinhus'].include? author
     return 'Payment Processing'
   end
 
-  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf', 'luisguilhermemsalmeida'].include? author
+  if ['brunoberte', 'fabioaalves', 'fariajp', 'geicyane', 'hiroyujin', 'leandrofinger', 'LuisMaleski', 'thiagocordeiro', 'Valforte', 'vinivf', 'luisguilhermemsalmeida', 'jorgecandidoan'].include? author
     return 'Finance'
   end
 
@@ -178,7 +184,7 @@ def get_team_by_author(author)
     return 'MerchantProduct/ SMB'
   end
 
-  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15'].include? author
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15', 'deafjava'].include? author
     return 'EndUser-Web/ MKT'
   end
 
@@ -186,7 +192,7 @@ def get_team_by_author(author)
     return 'End User - Mobile'
   end
 
-  return 'Unknown team'
+  return "Unknown team - #{author}"
 end
 
 def get_quality_prs (prs)
@@ -267,8 +273,7 @@ def get_lowest_five_test_percentage_per_repository(prs)
 
 end
 
-SCHEDULER.every '10m', :first_in => 0 do |job|
-
+SCHEDULER.every '10m', :first_in => 0, allow_overlapping: false do |job|
   result = Wheatley.run
 
   send_event('total_prs',  current: result.length)
