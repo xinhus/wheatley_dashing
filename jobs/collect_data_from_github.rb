@@ -115,7 +115,7 @@ module Wheatley
         pr_diff = response.body.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       end
 
-      if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || pr_has_changes_on_existing_tests?(pr) || /^\+.*it '.*' do/.match(pr_diff)
+      if /^\+.*Test/.match(pr_diff) || /^\+.*spec/.match(pr_diff) || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
         @has_tests_by_url[url] = true
         true
       else
@@ -142,16 +142,6 @@ module Wheatley
 
       labels.each do |label|
         return true if label[:name] == "LGTM (end to end tested)"
-      end
-
-      false
-    end
-
-    def pr_has_changes_on_existing_tests? pr
-      labels = pr_labels(pr)
-
-      labels.each do |label|
-        return true if label[:name] == "LGTM (changing on existing tests)"
       end
 
       false
@@ -194,11 +184,11 @@ def get_team_by_author(author)
     return 'MerchantProduct/ SMB'
   end
 
-  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15', 'deafjava'].include? author
+  if ['diogenes', 'jonhkr', 'alexalth', 'Klockner', 'celsofabri', 'fariasdiego', 'brunob182', 'morenobryan', 'isbj15', 'deafjava', 'AngelaCPereira', 'jhessikanda'].include? author
     return 'EndUser-Web/ MKT'
   end
 
-  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp', 'fernandocruz', 'issamumobi', 'fernandoamorim'].include? author
+  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp', 'fernandocruz', 'issamumobi', 'fernandoamorim', 'alinekborges'].include? author
     return 'End User - Mobile'
   end
 
