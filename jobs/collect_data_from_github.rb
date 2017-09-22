@@ -115,7 +115,7 @@ module Wheatley
         pr_diff = response.body.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       end
 
-      if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || /^\+.*it '.*' do/.match(pr_diff)
+      if /^\+.*Test/.match(pr_diff) || pr_has_end_to_end?(pr) || pr_has_changes_on_existing_tests?(pr) || /^\+.*it '.*' do/.match(pr_diff)
         @has_tests_by_url[url] = true
         true
       else
@@ -142,6 +142,16 @@ module Wheatley
 
       labels.each do |label|
         return true if label[:name] == "LGTM (end to end tested)"
+      end
+
+      false
+    end
+
+    def pr_has_changes_on_existing_tests? pr
+      labels = pr_labels(pr)
+
+      labels.each do |label|
+        return true if label[:name] == "LGTM (changing on existing tests)"
       end
 
       false
