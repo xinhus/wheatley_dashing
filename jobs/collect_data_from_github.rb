@@ -172,7 +172,7 @@ module Wheatley
 end
 
 def get_team_by_author(author)
-  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico', 'gabrielysimette', 'thyagostall', 'xinhus'].include? author
+  if ['kalecser', 'jejung', 'daltones', 'danxexe', 'andreribas', 'erichnascimento', 'manuerumx', 'haptico', 'gabrielysimette', 'thyagostall', 'xinhus', 'cezarpavelski'].include? author
     return 'Payment Processing'
   end
 
@@ -188,7 +188,7 @@ def get_team_by_author(author)
     return 'EndUser-Web/ MKT'
   end
 
-  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp', 'fernandocruz', 'issamumobi', 'fernandoamorim', 'alinekborges'].include? author
+  if ['leandroBorgesFerreira', 'ssamumobi', 'guitcastro', 'cocuroci', 'mikhaelt', 'gustavomobiletouch', 'Leowanp', 'fernandocruz', 'issamumobi', 'fernandoamorim', 'alinekborges', 'guilherme-v'].include? author
     return 'End User - Mobile'
   end
 
